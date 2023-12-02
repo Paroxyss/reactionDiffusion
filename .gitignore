@@ -1,0 +1,17 @@
+.cache
+**/.DS_Store
+
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+**/*.ir
+**/*.metallib
+
+**/*.bmp
+
+metal-cpp/
+metalTests
+
