@@ -22,8 +22,9 @@ public:
     MTL::CommandQueue *_mCommandQueue;
 
     // Buffers to hold data.
-    MTL::Buffer *_mBufferA;
-    MTL::Buffer *_mBufferB;
+    MTL::Buffer *imgBuffer;
+    MTL::Buffer *data1;
+    MTL::Buffer *data2;
 
     Simulation(MTL::Device *device);
     ~Simulation();

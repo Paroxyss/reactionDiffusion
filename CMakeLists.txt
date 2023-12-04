@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(gol)
+project(reactionDiffusion)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 20)
@@ -35,27 +35,27 @@ file(GLOB SRC_SHADERS_FILES CONFIGURE_DEPENDS
         )
 
 add_custom_command(
-  OUTPUT gol.ir
-  COMMAND xcrun -sdk macosx metal -o gol.ir -c src/gol.metal
+  OUTPUT reactionDiffusion.ir
+  COMMAND xcrun -sdk macosx metal -o reactionDiffusion.ir -c src/simulation.metal
   DEPENDS ${SRC_SHADERS_FILES}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_command(
   OUTPUT shaders.metallib
-  COMMAND xcrun -sdk macosx metallib -o shaders.metallib gol.ir
-  DEPENDS gol.ir
+  COMMAND xcrun -sdk macosx metallib -o shaders.metallib reactionDiffusion.ir
+  DEPENDS reactionDiffusion.ir
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 
-add_executable(gol ${SRC_FILES} shaders.metallib)
+add_executable(reactionDiffusion ${SRC_FILES} shaders.metallib)
 
-target_include_directories(gol
+target_include_directories(reactionDiffusion
   SYSTEM PUBLIC ${CMAKE_SOURCE_DIR}/metal-cpp
 )
 
-target_link_libraries(gol
+target_link_libraries(reactionDiffusion
   ${APPLE_FWK_FOUNDATION}
   ${APPLE_FWK_QUARTZ_CORE}
   ${APPLE_FWK_METAL}

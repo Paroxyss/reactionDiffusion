@@ -13,8 +13,10 @@ int main(int argc, char *argv[]) {
     bool keep_window_open = true;
     while (keep_window_open) {
         SDL_Event e;
-        simulation.step();
-        display.fill((uint8_t *)simulation._mBufferA->contents());
+        for (int i = 0; i < 80; i++) {
+            simulation.step();
+        }
+        display.fill((uint8_t *)simulation.imgBuffer->contents());
         SDL_Delay(10);
         while (SDL_PollEvent(&e) > 0) {
             switch (e.type) {
