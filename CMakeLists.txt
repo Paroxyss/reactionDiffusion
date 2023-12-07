@@ -12,9 +12,6 @@ find_library(APPLE_FWK_FOUNDATION Foundation REQUIRED)
 find_library(APPLE_FWK_QUARTZ_CORE QuartzCore REQUIRED)
 find_library(APPLE_FWK_METAL Metal REQUIRED)
 
-include_directories("/usr/local/Cellar/llvm/17.0.5/include/c++/v1")
-link_directories("/usr/local/Cellar/llvm/17.0.5/lib/c++")
-
 include_directories("/opt/homebrew/opt/llvm/include")
 link_directories("/opt/homebrew/opt/llvm/lib")
 

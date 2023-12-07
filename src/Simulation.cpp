@@ -14,8 +14,9 @@ A class to manage all of the Metal objects this app creates.
 #include <cstdlib>
 #include <iostream>
 
-Simulation::Simulation(MTL::Device *device) {
+MTL::Buffer *parameters;
 
+Simulation::Simulation(MTL::Device *device) {
     _mDevice = device;
 
     NS::Error *error = nullptr;
@@ -53,6 +54,8 @@ Simulation::Simulation(MTL::Device *device) {
     }
 
     // Allocate three buffers to hold our initial data and the result.
+	parameters =
+        _mDevice->newBuffer(sizeof(reactionParameters), MTL::ResourceStorageModeShared);
     imgBuffer =
         _mDevice->newBuffer(WIDTH * HEIGHT * 3, MTL::ResourceStorageModeShared);
     data1 = _mDevice->newBuffer(WIDTH * HEIGHT * sizeof(float) * 3,
@@ -60,6 +63,15 @@ Simulation::Simulation(MTL::Device *device) {
     data2 = _mDevice->newBuffer(WIDTH * HEIGHT * sizeof(float) * 3,
                                 MTL::ResourceStorageModeShared);
 
+	init();
+    reactionParameters *reactData = (reactionParameters *)parameters->contents();
+	reactData->diffA = diffusionA;
+	reactData->diffB = diffusionB;
+	reactData->feedA = feedRate;
+	reactData->killB = killRate;
+}
+
+void Simulation::init(){
     float *content = (float *)data1->contents();
     for (int i = 0; i < HEIGHT * WIDTH; i += 1) {
         content[3 * i] = 1.;
@@ -69,6 +81,17 @@ Simulation::Simulation(MTL::Device *device) {
     for (int x = 0; x < 100; x += 1) {
         for (int y = 0; y < 100; y += 1) {
             int pos = (x + WIDTH/2 - 50) + (y + HEIGHT/2 - 50) * WIDTH;
+            //content[3 * pos] = 0.;
+            content[3 * pos + 1] = 1.;
+        }
+    }
+}
+void Simulation::addB(int x, int y){
+    float *content = (float *)data1->contents();
+	content[3*(x + WIDTH*y)] = 1;
+    for (int dx = 0; dx < 100; dx += 1) {
+        for (int dy = 0; dy < 100; dy += 1) {
+            int pos = (dx + x) + (dy + y) * WIDTH;
             content[3 * pos] = 0.;
             content[3 * pos + 1] = 1.;
         }
@@ -110,6 +133,7 @@ void Simulation::encodeStepCommand(MTL::ComputeCommandEncoder *computeEncoder) {
     computeEncoder->setBuffer(data1, 0, 0);
     computeEncoder->setBuffer(data2, 0, 1);
     computeEncoder->setBuffer(imgBuffer, 0, 2);
+    computeEncoder->setBuffer(parameters, 0, 3);
 
     MTL::Size gridSize = MTL::Size::Make(WIDTH * HEIGHT, 1, 1);
 
@@ -125,7 +149,16 @@ void Simulation::encodeStepCommand(MTL::ComputeCommandEncoder *computeEncoder) {
     computeEncoder->dispatchThreads(gridSize, threadgroupSize);
 }
 
+void Simulation::delta(float ddiffA, float ddiffB, float dfeed, float dkill){
+    reactionParameters *reactData = (reactionParameters *)parameters->contents();
+	reactData->diffA += ddiffA;
+	reactData->diffB += ddiffB;
+	reactData->feedA += dfeed;
+	reactData->killB += dkill;
+}
+
 Simulation::~Simulation() {
+	parameters->release();
     data1->release();
     data2->release();
     imgBuffer->release();

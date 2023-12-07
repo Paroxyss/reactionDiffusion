@@ -1,7 +1,8 @@
+#pragma once
 #define WIDTH 1500
 #define HEIGHT 800
 
-#define RDBullesDeSavon
+#define RDclassic
 
 #ifdef RDVagues
 #define diffusionA 1 // 1.0
@@ -42,3 +43,11 @@
 #define killRate 0.062 // 0.062
 #define dt 1
 #endif
+
+typedef struct reactionParameters{
+	float diffA;
+	float diffB;
+	float feedA;
+	float killB;
+}reactionParameters;
+
